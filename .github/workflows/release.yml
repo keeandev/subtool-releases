@@ -30,6 +30,10 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           repository: DinoZoidDev/subtool
 
+      - name: install arm64 rust target (macos only)
+        if: matrix.platform == 'macos-latest'
+        run: rustup target add aarch64-apple-darwin
+
       - name: Install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-20.04'
         # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
@@ -63,7 +67,7 @@ jobs:
           envkey_API_URL: ${{ secrets.API_URL }}
 
       - name: Build app
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
