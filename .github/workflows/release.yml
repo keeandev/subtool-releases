@@ -23,7 +23,6 @@ jobs:
         config:
         - os: ubuntu-20.04
           arch: x86_64
-          rust_target: x86_64-unknown-linux-gnu
         - os: macos-latest
           arch: x86_64
           rust_target: x86_64-apple-darwin
@@ -32,7 +31,6 @@ jobs:
           rust_target: aarch64-apple-darwin
         - os: windows-latest
           arch: x86_64
-          rust_target: x86_64-pc-windows-msvc
     runs-on: ${{ matrix.config.os }}
     defaults:
       run:
@@ -84,9 +82,14 @@ jobs:
         with:
           envkey_API_URL: ${{ secrets.API_URL }}
 
-      - name: List rust targets
-        run: rustup target list
-
+      - name: Set build args
+        run: |
+          if [ -n "${{ matrix.config.rust_target }}" ]; then
+            echo "args=--target ${{ matrix.config.rust_target }}" >> $GITHUB_ENV
+          else
+            echo "args=" >> $GITHUB_ENV
+          fi
+        
       - name: Build app
         uses: tauri-apps/tauri-action@dev
         env:
@@ -101,4 +104,4 @@ jobs:
           releaseBody: 'See the assets below to download & install this version of Subtool.'
           releaseDraft: ${{ github.event.inputs.release_type == 'draft' }}
           prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
-          args: --target ${{ matrix.config.rust_target }}
+          args: ${{ env.args }}
