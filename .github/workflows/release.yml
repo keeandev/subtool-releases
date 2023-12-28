@@ -86,4 +86,4 @@ jobs:
           releaseBody: 'See the assets below to download & install this version of Subtool.'
           releaseDraft: ${{ github.event.inputs.release_type == 'draft' }}
           prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
-          args: ${{ matrix.config.rust_target && '--target ${{ matrix.config.rust_target }}' || '' }}
+          args: ${{ matrix.config.rust_target == '' && '--target ${{ matrix.config.rust_target }}' || '' }}
