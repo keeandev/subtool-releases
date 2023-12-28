@@ -2,12 +2,12 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       release_type:
         type: choice
-        default: 'draft'
+        default: "draft"
         options:
           - draft
           - prerelease
@@ -44,7 +44,7 @@ jobs:
       - name: Setup rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: './apps/desktop/src-tauri -> target'
+          workspaces: "./apps/desktop/src-tauri -> target"
 
       - name: Use PNPM
         uses: pnpm/action-setup@v2.2.4
@@ -53,11 +53,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install frontend dependencies
         run: pnpm install --ignore-scripts
-      
+
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v2.0
         with:
@@ -66,13 +66,14 @@ jobs:
       - name: Build app
         uses: tauri-apps/tauri-action@v0
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
           CARGO_INCREMENTAL: 0
           RUST_BACKTRACE: short
         with:
           tagName: __VERSION__ # tauri-action replaces \_\_VERSION\_\_ with the app version.
-          releaseName: 'Subtool v__VERSION__'
-          releaseBody: 'See the assets below to download & install this version of Subtool.'
-          releaseDraft: ${{ github.event.inputs.release_type == 'draft' }} 
-          prerelease: ${{ github.event.inputs.release_type == 'prerelease' }} 
+          releaseName: "Subtool v__VERSION__"
+          releaseBody: "See the assets below to download & install this version of Subtool."
+          releaseDraft: ${{ github.event.inputs.release_type == 'draft' }}
+          prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
