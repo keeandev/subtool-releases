@@ -71,9 +71,6 @@ jobs:
           CARGO_INCREMENTAL: 0
           RUST_BACKTRACE: short
         with:
-          owner: DinoZoidDev
-          repo: subtool-releases
-          releaseCommitish: 50678b30cfa8b64ae9c06f2677b2827617330445
           tagName: __VERSION__ # tauri-action replaces \_\_VERSION\_\_ with the app version.
           releaseName: 'Subtool v__VERSION__'
           releaseBody: 'See the assets below to download & install this version of Subtool.'
