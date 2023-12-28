@@ -21,18 +21,12 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - os: ubuntu-20.04
-          arch: x86_64
-          rust_target: x86_64-unknown-linux-gnu
+        - os: windows-latest
         - os: macos-latest
-          arch: x86_64
           rust_target: x86_64-apple-darwin
         - os: macos-latest
-          arch: aarch64
           rust_target: aarch64-apple-darwin
-        - os: windows-latest
-          arch: x86_64
-          rust_target: x86_64-pc-windows-msvc
+        - os: ubuntu-20.04
           
     runs-on: ${{ matrix.config.os }}
     steps:
@@ -92,4 +86,4 @@ jobs:
           releaseBody: "See the assets below to download & install this version of Subtool."
           releaseDraft: ${{ github.event.inputs.release_type == 'draft' }}
           prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
-          args: --target ${{ matrix.config.rust_target }}
+          args: ${{ matrix.config.rust_target && '--target ' + matrix.config.rust_target }}
