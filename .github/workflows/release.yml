@@ -82,8 +82,8 @@ jobs:
           RUST_BACKTRACE: short
         with:
           tagName: __VERSION__ # tauri-action replaces \_\_VERSION\_\_ with the app version.
-          releaseName: "Subtool v__VERSION__"
-          releaseBody: "See the assets below to download & install this version of Subtool."
+          releaseName: 'Subtool v__VERSION__'
+          releaseBody: 'See the assets below to download & install this version of Subtool.'
           releaseDraft: ${{ github.event.inputs.release_type == 'draft' }}
           prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
-          args: ${{ matrix.config.rust_target && '--target ' + matrix.config.rust_target }}
+          args: ${{ matrix.config.rust_target && '--target ${{ matrix.config.rust_target }}' || '' }}
