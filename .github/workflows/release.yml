@@ -1,0 +1,81 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        type: choice
+        default: 'draft'
+        options:
+          - draft
+          - prerelease
+          - release
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, ubuntu-18.04, windows-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: DinoZoidDev/subtool
+          ref: main
+
+      - name: Install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-18.04'
+        # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './apps/desktop/src-tauri -> target'
+
+      - name: Use PNPM
+        uses: pnpm/action-setup@v2.2.4
+
+      - name: Sync node version and setup cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - name: Install frontend dependencies
+        run: pnpm install --ignore-scripts
+      
+      - name: Create .env file
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          envkey_API_URL: ${{ secrets.API_URL }}
+
+      - name: Build app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+          CARGO_INCREMENTAL: 0
+          RUST_BACKTRACE: short
+        with:
+          owner: DinoZoidDev
+          repo: subtool-releases
+          releaseCommitish: 50678b30cfa8b64ae9c06f2677b2827617330445
+          tagName: __VERSION__ # tauri-action replaces \_\_VERSION\_\_ with the app version.
+          releaseName: 'Subtool v__VERSION__'
+          releaseBody: 'See the assets below to download & install this version of Subtool.'
+          releaseDraft: ${{ github.event.inputs.release_type == 'draft' }} 
+          prerelease: ${{ github.event.inputs.release_type == 'prerelease' }} 
