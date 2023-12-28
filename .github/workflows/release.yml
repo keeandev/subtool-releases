@@ -89,9 +89,12 @@ jobs:
           else
             echo "args=" >> $GITHUB_ENV
           fi
+
+      - name: Show build args
+        run: echo $args
         
       - name: Build app
-        uses: tauri-apps/tauri-action@dev
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
