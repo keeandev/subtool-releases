@@ -21,12 +21,18 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - os: windows-latest
+        - os: ubuntu-20.04
+          arch: x86_64
+          rust_target: x86_64-unknown-linux-gnu
         - os: macos-latest
+          arch: x86_64
           rust_target: x86_64-apple-darwin
         - os: macos-latest
+          arch: aarch64
           rust_target: aarch64-apple-darwin
-        - os: ubuntu-20.04
+        - os: windows-latest
+          arch: x86_64
+          rust_target: x86_64-pc-windows-msvc
           
     runs-on: ${{ matrix.config.os }}
     steps:
@@ -67,6 +73,9 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install --ignore-scripts
 
+      - name: Check tauri info
+        run: pnpm tauri info
+        
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v2.0
         with:
@@ -86,4 +95,4 @@ jobs:
           releaseBody: 'See the assets below to download & install this version of Subtool.'
           releaseDraft: ${{ github.event.inputs.release_type == 'draft' }}
           prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
-          args: ${{ matrix.config.rust_target == '' && '--target ${{ matrix.config.rust_target }}' || '' }}
+          args: --target ${{ matrix.config.rust_target }}
