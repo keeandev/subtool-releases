@@ -23,7 +23,7 @@ jobs:
         config:
         - os: ubuntu-20.04
           arch: x86_64
-          rust_target: x86_64-unknown-linux-gnu
+          rust_target: stable-x86_64-unknown-linux-gnu
         - os: macos-latest
           arch: x86_64
           rust_target: x86_64-apple-darwin
@@ -33,8 +33,10 @@ jobs:
         - os: windows-latest
           arch: x86_64
           rust_target: x86_64-pc-windows-msvc
-          
     runs-on: ${{ matrix.config.os }}
+    defaults:
+      run:
+        working-directory: ./apps/desktop
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,10 +73,7 @@ jobs:
           cache: "pnpm"
 
       - name: Install frontend dependencies
-        run: pnpm install --ignore-scripts
-
-      - name: Check tauri info
-        run: pnpm tauri info
+        run: pnpm install --filter desktop --ignore-scripts
         
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v2.0
