@@ -80,6 +80,9 @@ jobs:
         with:
           envkey_API_URL: ${{ secrets.API_URL }}
 
+      - name: List rust targets
+        run: rustup target list
+
       - name: Build app
         uses: tauri-apps/tauri-action@dev
         env:
