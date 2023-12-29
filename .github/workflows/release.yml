@@ -21,17 +21,15 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - os: ubuntu-20.04
-          arch: x86_64
-        - os: macos-latest
-          arch: x86_64
-          rust_target: x86_64-apple-darwin
-        - os: macos-latest
-          arch: aarch64
-          rust_target: aarch64-apple-darwin
-        - os: windows-latest
-          arch: x86_64
-    runs-on: ${{ matrix.config.os }}
+          - platform: macos-latest
+            args: '--target x86_64-apple-darwin'
+          - platform: macos-latest
+            args: '--target aarch64-apple-darwin'
+          - platform: windows-latest
+            args: '--target x86_64-pc-windows-msvc'
+          - platform: ubuntu-22.04
+            args: ''
+    runs-on: ${{ matrix.config.platform }}
     defaults:
       run:
         working-directory: ./apps/desktop
@@ -42,16 +40,8 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           repository: DinoZoidDev/subtool
 
-      - name: Configure Rust target (macos-aarch only)
-        if: matrix.config.rust_target == 'aarch64-apple-darwin'
-        run: rustup target add ${{ matrix.config.rust_target }}
-
-      - name: Configure Rust target (ubuntu only)
-        if: matrix.config.rust_target == 'x86_64-unknown-linux-gnu'
-        run: rustup target add ${{ matrix.config.rust_target }}
-
       - name: Install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
         run: |
           sudo apt-get update
@@ -59,14 +49,19 @@ jobs:
 
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
 
       - name: Setup rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: "./apps/desktop/src-tauri -> target"
+          cache-on-failure: true
 
       - name: Use pnpm
         uses: pnpm/action-setup@v2.2.4
+        with:
+          run_install: false
 
       - name: Sync node version and setup cache
         uses: actions/setup-node@v3
@@ -81,17 +76,6 @@ jobs:
         uses: SpicyPizza/create-envfile@v2.0
         with:
           envkey_API_URL: ${{ secrets.API_URL }}
-
-      - name: Set build args
-        run: |
-          if [ -n "${{ matrix.config.rust_target }}" ]; then
-            echo "args=--target ${{ matrix.config.rust_target }}" >> $GITHUB_ENV
-          else
-            echo "args=" >> $GITHUB_ENV
-          fi
-
-      - name: Show build args
-        run: echo $args
         
       - name: Build app
         uses: tauri-apps/tauri-action@v0
@@ -107,4 +91,4 @@ jobs:
           releaseBody: 'See the assets below to download & install this version of Subtool.'
           releaseDraft: ${{ github.event.inputs.release_type == 'draft' }}
           prerelease: ${{ github.event.inputs.release_type == 'prerelease' }}
-          args: ${{ env.args }}
+          args: ${{ matrix.config.args }}
