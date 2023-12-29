@@ -27,7 +27,7 @@ jobs:
             args: '--target aarch64-apple-darwin'
           - platform: windows-latest
             args: '--target x86_64-pc-windows-msvc'
-          - platform: ubuntu-22.04
+          - platform: ubuntu-20.04
             args: ''
     runs-on: ${{ matrix.config.platform }}
     defaults:
@@ -41,7 +41,7 @@ jobs:
           repository: DinoZoidDev/subtool
 
       - name: Install dependencies (ubuntu only)
-        if: matrix.config.platform == 'ubuntu-22.04'
+        if: matrix.config.platform == 'ubuntu-20.04'
         # You can remove libayatana-appindicator3-dev if you don't use the system tray feature.
         run: |
           sudo apt-get update
