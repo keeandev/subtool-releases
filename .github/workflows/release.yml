@@ -75,7 +75,7 @@ jobs:
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v2.0
         with:
-          envkey_NEXT_PUBLIC_API_URL: ${{ secrets.API_URL }}
+          envkey_AUTH_REDIRECT_PROXY_URL: ${{ secrets.AUTH_REDIRECT_PROXY_URL }}
         
       - name: Build app
         uses: tauri-apps/tauri-action@v0
