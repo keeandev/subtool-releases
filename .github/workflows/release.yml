@@ -71,7 +71,8 @@ jobs:
 
       - name: Install frontend dependencies
         run: pnpm install --filter desktop --ignore-scripts
-        
+
+        # create .env file to read for dotenv! macro in rust
       - name: Create .env file
         uses: SpicyPizza/create-envfile@v2.0
         with:
